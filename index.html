@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FreelanceHub — Gestion Freelance Canada</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --accent: #1D9E75;
+      --accent-light: #E1F5EE;
+      --accent-dark: #0F6E56;
+      --bg: #f5f5f3;
+      --surface: #ffffff;
+      --surface2: #f1efe8;
+      --text: #1a1a18;
+      --text2: #6b6a65;
+      --text3: #a8a79f;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.22);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.5; }
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar { width: 220px; min-width: 220px; background: var(--surface); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.25rem 0; overflow-y: auto; }
+    .logo { padding: 0 1.25rem 1.25rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
+    .logo-title { font-size: 17px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-title i { color: var(--accent); font-size: 20px; }
+    .logo-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+    .nav-section { font-size: 11px; color: var(--text3); padding: 1rem 1.25rem 0.3rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 1.25rem; font-size: 14px; color: var(--text2); cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: background 0.15s, color 0.15s; border-radius: 0; }
+    .nav-item i { font-size: 18px; }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: var(--accent-light); color: var(--accent-dark); font-weight: 600; }
+
+    /* MAIN */
+    .main { flex: 1; overflow-y: auto; padding: 1.75rem; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .page-title { font-size: 22px; font-weight: 600; color: var(--text); }
+
+    /* BUTTONS */
+    .btn { padding: 8px 16px; border-radius: var(--radius); font-size: 14px; cursor: pointer; border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); display: inline-flex; align-items: center; gap: 6px; font-family: var(--font); transition: background 0.15s; }
+    .btn:hover { background: var(--surface2); }
+    .btn-accent { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn-accent:hover { background: var(--accent-dark); }
+    .btn-sm { padding: 5px 10px; font-size: 13px; }
+
+    /* METRICS */
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+    .metric-card { background: var(--surface2); border-radius: var(--radius); padding: 1rem; }
+    .metric-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .metric-label i { font-size: 16px; }
+    .metric-value { font-size: 21px; font-weight: 600; color: var(--text); }
+    .metric-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+    .metric-good { color: var(--accent); }
+    .metric-warn { color: #BA7517; }
+
+    /* CARDS */
+    .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+
+    /* TABLES */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 8px 10px; color: var(--text2); font-weight: 500; border-bottom: 0.5px solid var(--border); }
+    td { padding: 10px; color: var(--text); border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .badge-success { background: #EAF3DE; color: #3B6D11; }
+    .badge-warn { background: #FAEEDA; color: #854F0B; }
+    .badge-info { background: #E6F1FB; color: #185FA5; }
+    .badge-gray { background: var(--surface2); color: var(--text2); }
+
+    /* FORMS */
+    .form-group { margin-bottom: 1rem; }
+    .form-label { font-size: 13px; color: var(--text2); margin-bottom: 5px; display: block; }
+    .form-input { width: 100%; padding: 9px 11px; font-size: 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); font-family: var(--font); transition: border-color 0.15s; }
+    .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(29,158,117,0.12); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* MODALS */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 200; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 1.5rem; width: 480px; max-width: 96vw; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .modal-title { font-size: 17px; font-weight: 600; color: var(--text); }
+    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.25rem; }
+
+    /* AVATAR */
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-light); color: var(--accent-dark); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+
+    /* PROGRESS */
+    .progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+
+    /* PRICING */
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 760px; }
+    .pricing-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; position: relative; }
+    .pricing-card.featured { border: 2px solid var(--accent); }
+    .pricing-popular { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: #EAF3DE; color: #3B6D11; font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+    .pricing-name { font-weight: 600; font-size: 16px; margin-bottom: 6px; }
+    .pricing-price { font-size: 28px; font-weight: 700; color: var(--text); margin: 12px 0 4px; }
+    .pricing-price span { font-size: 14px; font-weight: 400; color: var(--text2); }
+    .pricing-price.accent { color: var(--accent); }
+    .pricing-tax { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+    .pricing-features { font-size: 13px; color: var(--text2); line-height: 2.1; margin-bottom: 1.25rem; }
+
+    /* TIMER */
+    .timer-display { font-size: 52px; font-weight: 700; color: var(--text); letter-spacing: 3px; margin-bottom: 1.5rem; font-variant-numeric: tabular-nums; }
+
+    /* TAX SUMMARY */
+    .tax-summary { background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--text2); margin-bottom: 1rem; }
+
+    /* EMPTY */
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text2); }
+    .empty-state i { font-size: 40px; display: block; margin-bottom: 1rem; color: var(--text3); }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--text); color: white; padding: 12px 20px; border-radius: var(--radius); font-size: 14px; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; display: flex; align-items: center; gap: 8px; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 700px) {
+      .sidebar { width: 60px; min-width: 60px; }
+      .nav-item span, .logo-sub, .nav-section, .logo-title span { display: none; }
+      .logo-title { justify-content: center; }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-title"><i class="ti ti-briefcase"></i> <span>FreelanceHub</span></div>
+      <div class="logo-sub">🍁 Canada · Plan Gratuit</div>
+    </div>
+    <span class="nav-section">Principal</span>
+    <button class="nav-item active" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard"></i> <span>Tableau de bord</span></button>
+    <button class="nav-item" onclick="showPage('clients',this)"><i class="ti ti-users"></i> <span>Clients</span></button>
+    <button class="nav-item" onclick="showPage('projects',this)"><i class="ti ti-folders"></i> <span>Projets</span></button>
+    <button class="nav-item" onclick="showPage('invoices',this)"><i class="ti ti-receipt"></i> <span>Factures</span></button>
+    <button class="nav-item" onclick="showPage('time',this)"><i class="ti ti-clock"></i> <span>Temps</span></button>
+    <span class="nav-section">Compte</span>
+    <button class="nav-item" onclick="showPage('pricing',this)"><i class="ti ti-star"></i> <span>Passer Pro</span></button>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-title">Bonjour 👋</div>
+        <div style="font-size:13px;color:var(--text2)">Mai 2026 · <strong style="color:var(--accent)">CAD $</strong></div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label"><i class="ti ti-cash" style="color:var(--accent)"></i> Revenus ce mois</div>
+          <div class="metric-value" id="dash-revenue">CA$5,740</div>
+          <div class="metric-sub metric-good">+12% vs mois dernier</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label"><i class="ti ti-file-invoice" style="color:#378ADD"></i> En attente</div>
+          <div class="metric-value" id="dash-pending">CA$2,520</div>
+          <div class="metric-sub metric-warn">2 factures non payées</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label"><i class="ti ti-users" style="color:#D4537E"></i> Clients actifs</div>
+          <div class="metric-value" id="dash-clients">2</div>
+          <div class="metric-sub">Limite gratuite : 5</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label"><i class="ti ti-clock" style="color:#BA7517"></i> Heures ce mois</div>
+          <div class="metric-value">38h</div>
+          <div class="metric-sub">Taux moy. : CA$150/h</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Activité récente</div>
+        <table>
+          <thead><tr><th>Date</th><th>Événement</th><th>Client</th><th>Montant (CAD)</th></tr></thead>
+          <tbody>
+            <tr><td>13 mai</td><td>Facture envoyée</td><td>Agence Pixel</td><td style="color:var(--accent);font-weight:600">CA$1,640</td></tr>
+            <tr><td>10 mai</td><td>Paiement reçu</td><td>StartupXY</td><td style="color:var(--accent);font-weight:600">CA$3,410</td></tr>
+            <tr><td>08 mai</td><td>Nouveau projet</td><td>Agence Pixel</td><td>—</td></tr>
+            <tr><td>05 mai</td><td>Facture payée</td><td>StartupXY</td><td style="color:var(--accent);font-weight:600">CA$680</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="page" id="page-clients">
+      <div class="page-header">
+        <div class="page-title">Clients</div>
+        <button class="btn btn-accent" onclick="openModal('modal-client')"><i class="ti ti-plus"></i> Nouveau client</button>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th></th><th>Nom</th><th>Email</th><th>CA total</th><th>Province</th><th>Statut</th><th></th></tr></thead>
+          <tbody id="clients-table">
+            <tr>
+              <td><div class="avatar">AP</div></td>
+              <td style="font-weight:600">Agence Pixel</td>
+              <td style="color:var(--text2)">contact@agencepixel.ca</td>
+              <td style="color:var(--accent);font-weight:600">CA$4,910</td>
+              <td><span class="badge badge-gray">Québec</span></td>
+              <td><span class="badge badge-success">Actif</span></td>
+              <td><button class="btn btn-sm">Voir</button></td>
+            </tr>
+            <tr>
+              <td><div class="avatar" style="background:#E6F1FB;color:#185FA5">SX</div></td>
+              <td style="font-weight:600">StartupXY</td>
+              <td style="color:var(--text2)">ceo@startupxy.io</td>
+              <td style="color:var(--accent);font-weight:600">CA$10,920</td>
+              <td><span class="badge badge-gray">Ontario</span></td>
+              <td><span class="badge badge-success">Actif</span></td>
+              <td><button class="btn btn-sm">Voir</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="page" id="page-projects">
+      <div class="page-header">
+        <div class="page-title">Projets</div>
+        <button class="btn btn-accent" onclick="openModal('modal-project')"><i class="ti ti-plus"></i> Nouveau projet</button>
+      </div>
+      <div id="projects-container">
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div>
+              <div style="font-weight:600;font-size:15px">Refonte site web</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:2px">Agence Pixel · Forfait CA$6,550</div>
+            </div>
+            <span class="badge badge-info">En cours</span>
+          </div>
+          <div style="margin:10px 0 4px;font-size:12px;color:var(--text2);display:flex;justify-content:space-between"><span>Progression</span><span>65%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div>
+              <div style="font-weight:600;font-size:15px">App mobile MVP</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:2px">StartupXY · Régie CA$150/h</div>
+            </div>
+            <span class="badge badge-warn">En attente</span>
+          </div>
+          <div style="margin:10px 0 4px;font-size:12px;color:var(--text2);display:flex;justify-content:space-between"><span>Progression</span><span>20%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVOICES -->
+    <div class="page" id="page-invoices">
+      <div class="page-header">
+        <div class="page-title">Factures</div>
+        <button class="btn btn-accent" onclick="openModal('modal-invoice')"><i class="ti ti-plus"></i> Nouvelle facture</button>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>N°</th><th>Client</th><th>Date</th><th>Montant (CAD)</th><th>Statut</th><th></th></tr></thead>
+          <tbody id="invoices-table">
+            <tr>
+              <td style="font-weight:600;color:var(--accent)">#2026-004</td>
+              <td>Agence Pixel</td><td style="color:var(--text2)">13 mai 2026</td>
+              <td style="font-weight:600">CA$1,640</td>
+              <td><span class="badge badge-warn">En attente</span></td>
+              <td><button class="btn btn-sm" onclick="markPaid(this)"><i class="ti ti-check"></i> Marquer payée</button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600;color:var(--accent)">#2026-003</td>
+              <td>StartupXY</td><td style="color:var(--text2)">01 mai 2026</td>
+              <td style="font-weight:600">CA$890</td>
+              <td><span class="badge badge-warn">En attente</span></td>
+              <td><button class="btn btn-sm" onclick="markPaid(this)"><i class="ti ti-check"></i> Marquer payée</button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">#2026-002</td>
+              <td>StartupXY</td><td style="color:var(--text2)">10 avr 2026</td>
+              <td style="font-weight:600">CA$3,410</td>
+              <td><span class="badge badge-success">Payée</span></td>
+              <td><button class="btn btn-sm" disabled style="opacity:0.4;cursor:default"><i class="ti ti-check"></i> Payée</button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">#2026-001</td>
+              <td>Agence Pixel</td><td style="color:var(--text2)">15 mar 2026</td>
+              <td style="font-weight:600">CA$1,500</td>
+              <td><span class="badge badge-success">Payée</span></td>
+              <td><button class="btn btn-sm" disabled style="opacity:0.4;cursor:default"><i class="ti ti-check"></i> Payée</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TIME -->
+    <div class="page" id="page-time">
+      <div class="page-header"><div class="page-title">Suivi du temps</div></div>
+      <div class="card" style="text-align:center;padding:2.5rem 1rem">
+        <div class="timer-display" id="timer-display">00:00:00</div>
+        <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:1.5rem">
+          <select class="form-input" style="width:210px" id="timer-project">
+            <option>Refonte site web</option>
+            <option>App mobile MVP</option>
+          </select>
+          <button class="btn btn-accent" id="timer-btn" onclick="toggleTimer()"><i class="ti ti-player-play" id="timer-icon"></i> Démarrer</button>
+          <button class="btn" onclick="resetTimer()"><i class="ti ti-refresh"></i> Reset</button>
+        </div>
+        <div style="font-size:14px;color:var(--text2)">Taux : <strong>CA$150/h</strong></div>
+        <div style="font-size:14px;color:var(--text2);margin-top:5px">Revenus générés : <strong id="timer-earned" style="color:var(--accent);font-size:18px">CA$0.00</strong></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Sessions récentes</div>
+        <table>
+          <thead><tr><th>Date</th><th>Projet</th><th>Durée</th><th>Montant (CAD)</th></tr></thead>
+          <tbody id="sessions-table">
+            <tr><td>13 mai</td><td>Refonte site web</td><td>3h 15min</td><td style="color:var(--accent);font-weight:600">CA$487.50</td></tr>
+            <tr><td>12 mai</td><td>App mobile MVP</td><td>5h 00min</td><td style="color:var(--accent);font-weight:600">CA$750.00</td></tr>
+            <tr><td>10 mai</td><td>Refonte site web</td><td>2h 30min</td><td style="color:var(--accent);font-weight:600">CA$375.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="page" id="page-pricing">
+      <div class="page-header"><div class="page-title">Passez à Pro 🍁</div></div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-name">Gratuit</div>
+          <div class="pricing-price">CA$0<span>/mois</span></div>
+          <div class="pricing-tax">Sans carte de crédit</div>
+          <div class="pricing-features">✓ 5 clients max<br>✓ 10 factures/mois<br>✓ Suivi du temps<br>✓ Calcul taxes canadiennes<br>✗ Export PDF professionnel<br>✗ Relances automatiques<br>✗ Clients illimités</div>
+          <button class="btn" style="width:100%;justify-content:center" disabled>Plan actuel</button>
+        </div>
+        <div class="pricing-card featured">
+          <div class="pricing-popular">⭐ Populaire</div>
+          <div class="pricing-name">Pro</div>
+          <div class="pricing-price accent">CA$39<span>/mois</span></div>
+          <div class="pricing-tax">+ TPS/TVQ · ~CA$44.72 tout inclus</div>
+          <div class="pricing-features">✓ Clients illimités<br>✓ Factures illimitées<br>✓ PDF professionnel<br>✓ Relances automatiques<br>✓ TPS/TVQ automatique<br>✓ Support par email<br>✗ Comptabilité avancée</div>
+          <button class="btn btn-accent" style="width:100%;justify-content:center" onclick="showToast('Intégration Stripe bientôt disponible ! 🚀')">Choisir Pro</button>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-name">Business</div>
+          <div class="pricing-price">CA$109<span>/mois</span></div>
+          <div class="pricing-tax">+ TPS/TVQ · ~CA$124.96 tout inclus</div>
+          <div class="pricing-features">✓ Tout ce qui est en Pro<br>✓ Comptabilité avancée<br>✓ Portail client<br>✓ Contrats e-signature<br>✓ API & intégrations<br>✓ Support prioritaire<br>✓ Rapport fiscal annuel</div>
+          <button class="btn" style="width:100%;justify-content:center" onclick="showToast('Intégration Stripe bientôt disponible ! 🚀')">Choisir Business</button>
+        </div>
+      </div>
+      <p style="margin-top:1rem;font-size:12px;color:var(--text2)">Tous les prix sont en dollars canadiens (CAD). TPS 5% + TVQ 9.975% applicable au Québec.</p>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL CLIENT -->
+<div class="modal-overlay" id="modal-client">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nouveau client</div>
+      <button class="btn btn-sm" onclick="closeModal('modal-client')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nom de l'entreprise</label><input class="form-input" id="nc-name" placeholder="Acme Corp"></div>
+      <div class="form-group"><label class="form-label">Contact</label><input class="form-input" placeholder="Jean Tremblay"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="nc-email" placeholder="contact@acme.ca"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Province</label>
+        <select class="form-input" id="nc-province">
+          <option>Québec</option><option>Ontario</option><option>Colombie-Britannique</option><option>Alberta</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Taux horaire (CA$)</label><input class="form-input" id="nc-rate" type="number" placeholder="150"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-client')">Annuler</button>
+      <button class="btn btn-accent" onclick="addClient()"><i class="ti ti-plus"></i> Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FACTURE -->
+<div class="modal-overlay" id="modal-invoice">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nouvelle facture</div>
+      <button class="btn btn-sm" onclick="closeModal('modal-invoice')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Client</label>
+        <select class="form-input" id="inv-client"><option>Agence Pixel</option><option>StartupXY</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="inv-date"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="inv-desc" placeholder="Développement web"></div>
+      <div class="form-group"><label class="form-label">Montant avant taxes (CA$)</label><input class="form-input" type="number" id="inv-amount" placeholder="1500" oninput="calcTotal()"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Province (taxes)</label>
+      <select class="form-input" id="inv-province" onchange="calcTotal()">
+        <option value="14.975">Québec (TPS 5% + TVQ 9.975%)</option>
+        <option value="13">Ontario (TVH 13%)</option>
+        <option value="12">Colombie-Britannique (TPS 5% + TVP 7%)</option>
+        <option value="5">Alberta (TPS 5% seulement)</option>
+        <option value="0">Aucune taxe (export / exonéré)</option>
+      </select>
+    </div>
+    <div class="tax-summary">Total avec taxes : <strong id="inv-total">—</strong></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-invoice')">Annuler</button>
+      <button class="btn btn-accent" onclick="addInvoice()"><i class="ti ti-send"></i> Créer & Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROJET -->
+<div class="modal-overlay" id="modal-project">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nouveau projet</div>
+      <button class="btn btn-sm" onclick="closeModal('modal-project')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group"><label class="form-label">Nom du projet</label><input class="form-input" id="np-name" placeholder="Refonte site web"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Client</label>
+        <select class="form-input" id="np-client"><option>Agence Pixel</option><option>StartupXY</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Type</label>
+        <select class="form-input" id="np-type"><option>Forfait</option><option>Régie (horaire)</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Budget (CA$)</label><input class="form-input" id="np-budget" type="number" placeholder="6500"></div>
+      <div class="form-group"><label class="form-label">Deadline</label><input class="form-input" id="np-deadline" type="date"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-project')">Annuler</button>
+      <button class="btn btn-accent" onclick="addProject()"><i class="ti ti-plus"></i> Créer le projet</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-check"></i> <span id="toast-msg"></span></div>
+
+<script>
+  let timerRunning = false, timerInterval = null, timerSeconds = 0, invNum = 5;
+
+  function showPage(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+  }
+
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function markPaid(btn) {
+    const row = btn.closest('tr');
+    row.querySelector('.badge').className = 'badge badge-success';
+    row.querySelector('.badge').textContent = 'Payée';
+    btn.disabled = true;
+    btn.style.opacity = '0.4';
+    btn.style.cursor = 'default';
+    btn.innerHTML = '<i class="ti ti-check"></i> Payée';
+    showToast('Facture marquée comme payée ✓');
+  }
+
+  function addClient() {
+    const name = document.getElementById('nc-name').value.trim() || 'Nouveau client';
+    const email = document.getElementById('nc-email').value.trim() || '—';
+    const province = document.getElementById('nc-province').value;
+    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const colors = [['#FBEAF0','#993556'],['#E6F1FB','#185FA5'],['#FAEEDA','#854F0B'],['#E1F5EE','#0F6E56']];
+    const c = colors[Math.floor(Math.random() * colors.length)];
+    const row = document.createElement('tr');
+    row.innerHTML = `<td><div class="avatar" style="background:${c[0]};color:${c[1]}">${initials}</div></td><td style="font-weight:600">${name}</td><td style="color:var(--text2)">${email}</td><td style="color:var(--accent);font-weight:600">CA$0</td><td><span class="badge badge-gray">${province}</span></td><td><span class="badge badge-success">Actif</span></td><td><button class="btn btn-sm">Voir</button></td>`;
+    document.getElementById('clients-table').appendChild(row);
+    closeModal('modal-client');
+    showToast('Client ajouté avec succès ✓');
+    document.getElementById('nc-name').value = '';
+    document.getElementById('nc-email').value = '';
+  }
+
+  function calcTotal() {
+    const a = parseFloat(document.getElementById('inv-amount').value) || 0;
+    const rate = parseFloat(document.getElementById('inv-province').value) || 0;
+    const ttc = a * (1 + rate / 100);
+    document.getElementById('inv-total').textContent = ttc > 0 ? 'CA$' + ttc.toFixed(2) : '—';
+  }
+
+  function addInvoice() {
+    const client = document.getElementById('inv-client').value;
+    const amount = parseFloat(document.getElementById('inv-amount').value) || 0;
+    const rate = parseFloat(document.getElementById('inv-province').value) || 0;
+    const ttc = (amount * (1 + rate / 100)).toFixed(2);
+    const today = new Date().toLocaleDateString('fr-CA', {day:'numeric', month:'short', year:'numeric'});
+    const row = document.createElement('tr');
+    row.innerHTML = `<td style="font-weight:600;color:var(--accent)">#2026-00${invNum++}</td><td>${client}</td><td style="color:var(--text2)">${today}</td><td style="font-weight:600">CA$${parseFloat(ttc).toLocaleString('en-CA', {minimumFractionDigits:2})}</td><td><span class="badge badge-warn">En attente</span></td><td><button class="btn btn-sm" onclick="markPaid(this)"><i class="ti ti-check"></i> Marquer payée</button></td>`;
+    document.getElementById('invoices-table').insertBefore(row, document.getElementById('invoices-table').firstChild);
+    closeModal('modal-invoice');
+    showToast('Facture créée avec succès ✓');
+    document.getElementById('inv-amount').value = '';
+    document.getElementById('inv-total').textContent = '—';
+  }
+
+  function addProject() {
+    const name = document.getElementById('np-name').value.trim() || 'Nouveau projet';
+    const client = document.getElementById('np-client').value;
+    const type = document.getElementById('np-type').value;
+    const budget = document.getElementById('np-budget').value;
+    const budgetStr = budget ? `CA$${parseFloat(budget).toLocaleString('en-CA')}` : '—';
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div><div style="font-weight:600;font-size:15px">${name}</div><div style="font-size:13px;color:var(--text2);margin-top:2px">${client} · ${type} ${budgetStr}</div></div><span class="badge badge-warn">En attente</span></div><div style="margin:10px 0 4px;font-size:12px;color:var(--text2);display:flex;justify-content:space-between"><span>Progression</span><span>0%</span></div><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>`;
+    document.getElementById('projects-container').prepend(div);
+    closeModal('modal-project');
+    showToast('Projet créé avec succès ✓');
+    document.getElementById('np-name').value = '';
+    document.getElementById('np-budget').value = '';
+  }
+
+  function toggleTimer() {
+    timerRunning = !timerRunning;
+    const btn = document.getElementById('timer-btn');
+    if (timerRunning) {
+      btn.innerHTML = '<i class="ti ti-player-pause"></i> Pause';
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        const h = Math.floor(timerSeconds / 3600).toString().padStart(2, '0');
+        const m = Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0');
+        const s = (timerSeconds % 60).toString().padStart(2, '0');
+        document.getElementById('timer-display').textContent = `${h}:${m}:${s}`;
+        document.getElementById('timer-earned').textContent = 'CA$' + (timerSeconds / 3600 * 150).toFixed(2);
+      }, 1000);
+    } else {
+      clearInterval(timerInterval);
+      btn.innerHTML = '<i class="ti ti-player-play"></i> Reprendre';
+    }
+  }
+
+  function resetTimer() {
+    if (timerRunning) { toggleTimer(); }
+    timerSeconds = 0;
+    document.getElementById('timer-display').textContent = '00:00:00';
+    document.getElementById('timer-earned').textContent = 'CA$0.00';
+    document.getElementById('timer-btn').innerHTML = '<i class="ti ti-player-play"></i> Démarrer';
+  }
+
+  document.getElementById('inv-date').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
